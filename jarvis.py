@@ -6,39 +6,42 @@ from skills.exit_jarvis import exit_jarvis
 from skills.search_web import search_web
 
 
-def main():
-    print("JARVIS est en ligne. Tape une commande.")
-
-    while True:
-        commande = input("> ")
-
-        if commande.strip() == "":
-            continue
-
+def process_command(commande):
+    try:
         resultat = detect_intent(commande)
         intent = resultat["intent"]
-
         if intent == "GET_TIME":
-            reponse = get_time()
-            print(reponse)
+            return get_time()
         elif intent == "OPEN_APP":
-            target = resultat["target"]
-            reponse = open_app(target)
-            print(reponse)
+            return open_app(resultat["target"])
         elif intent == "CLOSE_APP":
-            target = resultat["target"]
-            reponse = close_app(target)
-            print(reponse)
+            return close_app(resultat["target"])
         elif intent == "SEARCH_WEB":
-            query = resultat["query"]
-            reponse = search_web(query)
-            print(reponse)
+            return search_web(resultat["query"])
         elif intent == "EXIT_JARVIS":
             exit_jarvis()
+            return None
         elif intent == "UNKNOWN":
-            print("Je ne connais pas encore cette commande.")
+            return "Je ne connais pas encore cette commande."
         else:
-            print(f"Intent détecté : {resultat}")
+            return f"Intent détecté : {resultat}"
+    except Exception as e:
+        return f"Une erreur est survenue, mais JARVIS continue : {e}"
+
+
+def main():
+    print("JARVIS est en ligne. Tape une commande.")
+    while True:
+        try:
+            commande = input("> ")
+        except (EOFError, KeyboardInterrupt):
+            print("\nJARVIS s'arrête (interruption détectée).")
+            break
+        if commande.strip() == "":
+            continue
+        reponse = process_command(commande)
+        if reponse is not None:
+            print(reponse)
 
 
 if __name__ == "__main__":

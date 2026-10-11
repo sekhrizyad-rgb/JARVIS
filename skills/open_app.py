@@ -1,20 +1,28 @@
+
 import os
 import subprocess
-from apps_registry import APPS
+from apps_registry import resolve_app
 
 
 def open_app(target):
-    if target not in APPS:
+    nom, app = resolve_app(target)
+
+    if app is None:
         return f"Je ne connais pas l'application '{target}'."
 
-    app = APPS[target]
+    try:
+        if app["open_method"] == "uri":
+            os.startfile(app["open_value"])
+            return f"{nom} ouvert."
 
-    if app["open_method"] == "uri":
-        os.startfile(app["open_value"])
-        return f"{target} ouvert."
+        if app["open_method"] == "path":
+            if not app["open_value"]:
+                return f"Chemin introuvable pour '{nom}' sur ce PC."
 
-    if app["open_method"] == "path":
-        subprocess.Popen(app["open_value"])
-        return f"{target} ouvert."
+            subprocess.Popen(app["open_value"])
+            return f"{nom} ouvert."
 
-    return f"Méthode d'ouverture inconnue pour '{target}'."
+        return f"Méthode d'ouverture inconnue pour '{nom}'."
+
+    except Exception as e:
+        return f"Impossible d'ouvrir {nom} : {e}"

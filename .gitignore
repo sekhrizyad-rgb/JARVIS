@@ -218,3 +218,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# JARVIS Voice generated audio
+voice/*.mp3
